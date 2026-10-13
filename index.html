@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>神秘跳跃</title>
+  <style>
+    body {
+      margin: 0;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      background: #111;
+      color: #eee;
+      font-family: system-ui, sans-serif;
+      overflow: hidden;
+    }
+    .stage {
+      height: 320px;
+      display: flex;
+      align-items: flex-end;
+      justify-content: center;
+    }
+    .tomato {
+      width: 180px;
+      height: auto;
+      cursor: pointer;
+      user-select: none;
+      -webkit-tap-highlight-color: transparent;
+    }
+    .tomato.jump {
+      animation: jump 0.6s ease;
+    }
+    @keyframes jump {
+      0% { transform: translateY(0) scale(1, 1); }
+      20% { transform: translateY(0) scale(1.1, 0.9); }
+      50% { transform: translateY(-180px) scale(0.95, 1.05); }
+      80% { transform: translateY(0) scale(1.1, 0.9); }
+      100% { transform: translateY(0) scale(1, 1); }
+    }
+    .btn-group {
+      display: flex;
+      gap: 12px;
+      margin-top: 24px;
+    }
+    button {
+      padding: 12px 22px;
+      border: none;
+      border-radius: 999px;
+      background: #ff4d4d;
+      color: white;
+      font-size: 16px;
+      font-weight: bold;
+      cursor: pointer;
+    }
+    #uploadBtn {
+      background: #444;
+    }
+    button:active {
+      transform: scale(0.96);
+    }
+  </style>
+</head>
+<body>
+  <div class="stage">
+    <img class="tomato" id="tomato" src="tomato.png" alt="番茄">
+  </div>
+
+  <!-- 隐藏的文件上传框 -->
+  <input type="file" id="fileInput" accept="image/*" style="display: none;">
+
+  <div class="btn-group">
+    <button id="btn">跳一下</button>
+    <button id="uploadBtn">换张图</button>
+  </div>
+
+  <script>
+    const tomato = document.getElementById('tomato');
+    const btn = document.getElementById('btn');
+    const uploadBtn = document.getElementById('uploadBtn');
+    const fileInput = document.getElementById('fileInput');
+
+    // 加载音频文件
+    const jumpSound = new Audio('pop.mp3');
+
+    function jump() {
+      tomato.classList.remove('jump');
+      void tomato.offsetWidth; // 强制重绘，保证连点也能触发动画
+      tomato.classList.add('jump');
+
+      // 播放音效
+      jumpSound.currentTime = 0;
+      jumpSound.play().catch(error => {
+        console.log("音频播放被拦截:", error);
+      });
+    }
+
+    btn.addEventListener('click', jump);
+    tomato.addEventListener('click', jump);
+    tomato.addEventListener('animationend', () => {
+      tomato.classList.remove('jump');
+    });
+
+    // 处理更换图片
+    uploadBtn.addEventListener('click', () => {
+      fileInput.click(); // 触发隐藏的文件选择框
+    });
+
+    fileInput.addEventListener('change', (event) => {
+      const file = event.target.files[0];
+      if (file) {
+        const reader = new FileReader();
+        reader.onload = (e) => {
+          tomato.src = e.target.result; // 把图片换成用户选的
+        };
+        reader.readAsDataURL(file);
+      }
+    });
+  </script>
+</body>
+</html>
